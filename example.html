@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+
+      html {
+        width: 100%;
+        height: 100%;
+      }
+
+      body {
+        width: 100%;
+        height: 100%;
+      }
+
+      canvas {
+        display: block;
+        width: 1080px;
+        height: 720px;
+        margin: 0 auto;
+      }
+
+      .btns {
+        width: 100%;
+        height: 50px;
+        display: flex;
+        justify-content: space-around;
+      }
+
+      .btn {
+        background-color: #000;
+        color: #fff;
+        cursor: pointer;
+
+        width: 100px;
+        height: 100%;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas width="1280" height="720"></canvas>
+
+    <div class="btns">
+      <div class="btn play">play</div>
+
+      <div class="btn stop">stop</div>
+
+      <div class="btn download">download</div>
+    </div>
+
+    <script src="http://bbc.github.io/VideoContext/dist/videocontext.js"></script>
+
+    <script>
+      class Record {
+        constructor(canvas, { videoType = "webm" } = {}) {
+          this.canvas = canvas
+          this.videoType = videoType
+
+          this.init()
+        }
+
+        init() {
+          const stream = this.canvas.captureStream()
+
+          this.mediaRecorder = new MediaRecorder(stream, {
+            mimeType: "video/x-matroska;codecs=avc1"
+          })
+
+          this.recordedBlobs = []
+
+          this.mediaRecorder.ondataavailable = this.handleDataAvailable
+        }
+
+        start() {
+          this.mediaRecorder.start()
+        }
+
+        stop() {
+          this.mediaRecorder.stop()
+        }
+
+        handleDataAvailable = event => {
+          if (event.data && event.data.size > 0) {
+            this.recordedBlobs.push(event.data)
+          }
+        }
+
+        download(name) {
+          const blob = new Blob(this.recordedBlobs, { type: "video/webm" })
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement("a")
+          a.href = url
+          a.download = `${name}.${this.videoType}`
+          a.click()
+          window.URL.revokeObjectURL(url)
+        }
+      }
+
+      const bindPlay = videoContext => {
+        const playBtn = document.querySelector(".play")
+
+        const stopBtn = document.querySelector(".stop")
+
+        const downloadBtn = document.querySelector(".download")
+
+        const record = new Record(videoContext._canvas)
+
+        console.log(record)
+
+        playBtn.addEventListener("click", () => {
+          console.log("start")
+          videoContext.play()
+
+          record.start()
+        })
+
+        stopBtn.addEventListener("click", () => {
+          console.log("stop")
+          videoContext.pause()
+
+          record.stop()
+        })
+
+        downloadBtn.addEventListener("click", () => {
+          console.log("download")
+          record.download("test")
+        })
+      }
+
+      const createEffectNodes = (videoContext, n) => {
+        const {
+          MONOCHROME,
+          HORIZONTAL_BLUR,
+          COLORTHRESHOLD,
+          AAF_VIDEO_FLIP
+        } = VideoContext.DEFINITIONS
+
+        const effects = [
+          MONOCHROME,
+          HORIZONTAL_BLUR,
+          COLORTHRESHOLD,
+          AAF_VIDEO_FLIP
+        ]
+
+        return [...new Array(n)].map(() =>
+          videoContext.effect(
+            effects[Math.round(Math.random() * effects.length)]
+          )
+        )
+      }
+
+      const start = async () => {
+        const canvas = document.querySelector("canvas")
+        const videoContext = new VideoContext(canvas)
+
+        const videoNode = videoContext.video(
+          "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+        )
+        videoNode.startAt(0)
+
+        const effectNodes = createEffectNodes(videoContext, 2)
+
+        effectNodes
+          .concat([videoContext.destination])
+          .reduce((preNode, currentNode) => {
+            preNode.connect(currentNode)
+
+            return currentNode
+          }, videoNode)
+
+        bindPlay(videoContext)
+      }
+
+      window.onload = start
+    </script>
+  </body>
+</html>
