@@ -18,10 +18,20 @@ let options = {
     webglContextAttributes: glOptions
 }
 
-
+const url = 'https://gist.githubusercontent.com/jsturgis/3b19447b304616f18657/raw/a8c1f60074542d28fa8da4fe58c3788610803a65/gistfile1.txt'
+fetch(url).then(function (response) {
+    response.text().then(function (text) {
+        text = text.replace('var mediaJSON = ','');
+        text = text.slice(0, -1)
+        var videos = JSON.parse(text);
+        console.log(videos);
+        addVideos(videos.categories[0].videos);
+    });
+});
 
 let videoCtx;
 let canvas;
+
 
 window.onload = function () {
     canvas = document.getElementById("canvas");
@@ -31,16 +41,21 @@ window.onload = function () {
     videoCtx = new VideoContext(canvas, () => console.error("Sorry, your browser dosen\'t support WebGL"), options);
 };
 
-for (var i = 0; i < 7; i++) {
-    var video = document.createElement('video');
-    video.src = 'bill.mp4';
-    video.autoplay = true;
-    video.muted = true;
-    video.width = 200;
-    video.height = 200;
-    video.loop = true;
-    document.body.appendChild(video);
+function addVideos(videos) {
+    for (var i = 0; i < videos.length; i++) {
+        var video = document.createElement('video');
+        video.crossOrigin = "anonymous"
+        video.src = videos[i].sources[0];
+        video.autoplay = true;
+        video.muted = true;
+        video.width = 200;
+        video.height = 200;
+        video.loop = true;
+        document.body.appendChild(video);
+    }
 }
+
+
 
 async function start() {
     console.log("PIP");
@@ -94,6 +109,6 @@ async function play() {
         video.hidden = false;
         video.onloadedmetadata = (event) => {
             video.requestPictureInPicture();
-        };        
+        };
     }, 500);
 }
