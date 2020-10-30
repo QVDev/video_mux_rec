@@ -6,18 +6,19 @@
     <title></title>
     <script type="text/javascript"
         src="https://cdn.jsdelivr.net/npm/videocontext@0.54.0/dist/videocontext.min.js"></script>
+        <script type="text/javascript" src="./multipip.js"></script>
 </head>
 
 <body>
-    <p><span id="fps-info">0</span>fps</p>
-    <canvas id="canvas" hidden></canvas>
+    <!-- <p><span id="fps-info">0</span>fps</p> -->
+    <!-- <canvas id="canvas" hidden></canvas> -->
     <video id="output" width="200px" height="200px" controls muted autoplay hidden style="
     position: absolute;
     bottom: 20px;
     right: 20px;">
     </video>
     <script type="text/javascript" src="pip.js"></script>
-    <button id="start" onclick="start()" style="
+    <button id="start" onclick="multiPip.init()" style="
     font-size: 24px;
     background: red;
     position:absolute;

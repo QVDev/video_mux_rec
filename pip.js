@@ -31,17 +31,16 @@ fetch(url).then(function (response) {
 let videoCtx;
 let canvas;
 
-
 window.onload = function () {
-    canvas = document.getElementById("canvas");
-    canvas.height = window.screen.height;
-    canvas.width = window.screen.width;
+    // canvas = document.getElementById("canvas");
+    // canvas.height = window.screen.height;
+    // canvas.width = window.screen.width;
 
-    videoCtx = new VideoContext(canvas, () => console.error("Sorry, your browser dosen\'t support WebGL"), options);
+    // videoCtx = new VideoContext(canvas, () => console.error("Sorry, your browser dosen\'t support WebGL"), options);
 };
 
 function addVideos(videos) {
-    for (var i = 0; i < videos.length; i++) {
+    for (var i = 0; i < 4; i++) {
         var video = document.createElement('video');
         video.crossOrigin = "anonymous"
         video.src = videos[i].sources[0];
